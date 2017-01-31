@@ -11,12 +11,12 @@ FilmQuery.prototype = {
       collection.find().toArray(function(err, docs){
         onQueryFinished(docs);
       });
-    })
+    });
   },
-  add: function(data) {
+  add: function(film) {
       MongoClient.connect(this.url, function(err, db){
           var collection = db.collection('films');
-            collection.insert(data);
+            collection.insert(film);
           });
 
     }

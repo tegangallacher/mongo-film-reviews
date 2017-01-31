@@ -3,9 +3,9 @@ var app = express();
 var filmRouter = express.Router();
 //models
 //since we don't have a database we'll use our front end models at the moment
-// var films = require('../client/src/models/films')();
-// var Film = require('../client/src/models/film');
-// var Review = require('../client/src/models/review');
+var films = require('../client/src/models/films')();
+var Film = require('../client/src/models/film');
+var Review = require('../client/src/models/review');
 
 var FilmQuery = require('../client/db/FilmQuery');
 var query = new FilmQuery();
@@ -42,9 +42,9 @@ filmRouter.post('/', function(req, res) {
     genre: req.body.genre 
   });
   query.add(film);
-    query.all(function(results){
-      res.json(results);
-    });
+   query.all(function(results) {
+       res.json(results);
+     });
 });
 
 //delete film

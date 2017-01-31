@@ -60,10 +60,9 @@
 	var Films = __webpack_require__(2);
 	
 	var UI = function() {
-	  var films = new Films();
-	  // this.render(films);
-	  films.all(function(result) {
-	    this.render(result);
+	  this.films = new Films();
+	  this.films.all(function (result){
+	    this.render(result)
 	  }.bind(this));
 	}
 	
@@ -84,70 +83,59 @@
 	    this.appendText(li, review.rating, 'Rating: ');
 	    this.appendText(li, review.author, 'Author: ');
 	  },
+	  createForm: function() {
+	    var form = document.querySelector('form');
 	
-	    createForm: function(){
-	      var form = document.querySelector('form');
+	    var title = document.createElement('input');
+	    title.setAttribute('type', 'text');
+	    title.setAttribute("placeholder", "Film Title:")
+	    var genre = document.createElement('input');
+	    genre.setAttribute('type', 'text');
+	    genre.setAttribute("placeholder", "Genre:")
+	    var actors = document.createElement('input');
+	    actors.setAttribute('type', 'text');   
+	    actors.setAttribute("placeholder", "Actors:");
+	    var button = document.createElement('input');
 	
-	      var title = document.createElement('input');
-	          title.setAttribute("type", "text");
-	          title.setAttribute("placeholder", "Title:")
+	    button.setAttribute('type', 'submit');
+	    
+	    form.appendChild(title); 
+	    form.appendChild(genre); 
+	    form.appendChild(actors);
+	    form.appendChild(button);
 	
-	          var genre = document.createElement('input');
-	          genre.setAttribute("type", "text");
-	          genre.setAttribute("placeholder", "Genre:")
+	    form.onsubmit = function(event) {
+	      // event.preventDefault();//stops the submit button from refreshing the pages.
 	
-	          var actors = document.createElement('input');
-	          actors.setAttribute("type", "text");
-	          actors.setAttribute("placeholder", "Actors:")
+	      var film = {title: title.value, genre: genre.value, actors: actors.value};
+	      var jsonFilm = JSON.stringify(film);
 	
-	          var submit = document.createElement('input');
-	          submit.setAttribute("type", "submit");
+	    this.films.makePostRequest("/api/films", function() {
+	      console.log(this.responseText);
+	       }, jsonFilm);
+	    }.bind(this);
 	
-	      form.appendChild(title);
-	      form.appendChild(actors);
-	      form.appendChild(genre);
-	      form.appendChild(submit);
-	
-	      form.onsubmit = function(event){
-	            // event.preventDefault();
-	            var data = {
-	              title: title.value,
-	              genre: genre.value,
-	              actors: actors.value
-	            }
-	
-	            var jsonString = JSON.stringify(data);
-	
-	            this.films.makePostRequest("/api/films", jsonString, function(){
-	              console.log(this.responseText);
-	            })
-	          }.bind(this);
-	        },
-	
+	  },
 	  render: function(films) {
-	
-	
 	    var container = document.getElementById('films');
-	
 	
 	    for (var film of films) {
 	      var li = document.createElement('li');
 	      this.appendText(li, film.title, 'Film: ');
-	      this.appendText(li, film.actors, 'Actors: ');
 	      this.appendText(li, film.genre, 'Genre: ');
-	      
+	      this.appendText(li, film.actors, 'Actors: ');
 	      for (var review of film.reviews){
 	        this.createReview(li, review);
 	      }
 	
 	      container.appendChild(li);
+	
 	    }
-	    this.createForm();
+	      this.createForm();
 	  }
-	};
+	}
 	
 	module.exports = UI;
-
 
 /***/ },
 /* 2 */
@@ -157,50 +145,50 @@
 	var Review = __webpack_require__(4);
 	
 	var Films = function() {
-	};
+	
+	}
 	
 	Films.prototype = {
 	  makeRequest: function(url, callback) {
 	    var request = new XMLHttpRequest();
 	    request.open("GET", url);
 	    request.onload = callback;
-	    request.send(); 
+	    request.send();
 	  },
-	 makePostRequest: function(url, data, callback) {
-	     var request = new XMLHttpRequest();
-	     request.open("POST", url);
-	     request.setRequestHeader("Content-type", "application/json")
-	     request.onload = callback;
-	     console.log(data);
-	     request.send(data);
-	   },
-	
-	
+	  makePostRequest: function(url, callback, data) {
+	    var request =  new XMLHttpRequest();
+	    request.open("POST", url);
+	    request.setRequestHeader("Content-type", "application/json")
+	    request.onload = callback;
+	    request.send(data);
+	    console.log(data);
+	  },
 	  all: function(callback) {
 	    var self = this;
-	    this.makeRequest("http://localhost:3000/api/films", function() {
-	      if(this.status !== 200) {
+	    this.makeRequest("/api/films", function() {
+	      if (this.status !== 200) {
 	        return;
-	      } 
+	      }
 	      var jsonString = this.responseText;
 	      var results = JSON.parse(jsonString);
 	      // console.log(results);
 	      var films = self.populateFilms(results);
 	      callback(films);
-	    })
+	    });
 	  },
 	  populateFilms: function(results) {
 	    var films = [];
-	      for (var result of results) {
-	        var film = new Film(result);
-	        films.push(film);
-	      }
+	
+	    for (var result of results) {
+	      var film = new Film(result);
+	      films.push(film);
+	    }
+	 
 	    return films;
 	  }
-	};
+	}
 	
 	module.exports = Films;
-
 
 /***/ },
 /* 3 */
